@@ -1,11 +1,13 @@
-import Types.ThermostatResult
-import cats.data.EitherT
-import scala.concurrent.ExecutionContext.Implicits.global
+package impl
 
+import cats.data.EitherT
+import devices.thermo.Types.ThermostatResult
+import devices.thermo.{Temperature, Thermostat, ThermostatAlgebra}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-// Just testing out the impl
-object ThermostatImpl extends ThermostatAlgebra[ThermostatResult] {
+object TestThermostatImpl extends ThermostatAlgebra[ThermostatResult] {
 
   override def read(thermostat: Thermostat): ThermostatResult[Temperature] =
     EitherT.right(Future(thermostat.currentTemp))
