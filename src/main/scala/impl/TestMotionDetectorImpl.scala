@@ -1,29 +1,48 @@
 package impl
 
 import cats.data.EitherT
-import devices.motion.MotionDetectorTypes.MotionDetectorResults
-import devices.motion.{DetectorStatus, MotionDetector, MotionDetectorAlgebra, MotionDetectorPowerStatus}
+import devices.motion.{
+  DetectorStatus,
+  MotionDetector,
+  MotionDetectorService,
+  MotionDetectorPowerStatus
+}
+import impl.DeviceResultType.DeviceResults
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object TestMotionDetectorImpl
-    extends MotionDetectorAlgebra[MotionDetectorResults] {
+object TestMotionDetectorImpl extends MotionDetectorService[DeviceResults] {
 
   override def setPower(
     motionDetector: MotionDetector,
     powerStatus: MotionDetectorPowerStatus
-  ): MotionDetectorResults[MotionDetector] =
-    EitherT.right(Future(motionDetector.copy(powerStatus = powerStatus)))
+  ): DeviceResults[MotionDetector] =
+    EitherT.right {
+      Future {
+        powerStatusLens.set(powerStatus)(motionDetector)
+      }
+    }
 
   override def setMotion(
     motionDetector: MotionDetector,
     detectorStatus: DetectorStatus
-  ): MotionDetectorResults[MotionDetector] =
-    EitherT.right(Future(motionDetector.copy(detectorStatus = detectorStatus)))
+  ): DeviceResults[MotionDetector] =
+    EitherT.right {
+      Future {
+        detectorStatusLens.set(detectorStatus)(motionDetector)
+      }
+    }
 
   override def read(
     motionDetector: MotionDetector
-  ): MotionDetectorResults[(MotionDetectorPowerStatus, DetectorStatus)] =
-    EitherT.right(Future((motionDetector.powerStatus, motionDetector.detectorStatus)))
+  ): DeviceResults[(MotionDetectorPowerStatus, DetectorStatus)] =
+    EitherT.right {
+      Future {
+        (
+          powerStatusLens.get(motionDetector),
+          detectorStatusLens.get(motionDetector)
+        )
+      }
+    }
 }
