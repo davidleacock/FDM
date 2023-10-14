@@ -1,9 +1,11 @@
 package devices.motion
 
-import monocle.Lens
+import monocle.{Getter, Lens}
 import monocle.macros.GenLens
 
-case class MotionDetector(powerStatus: MotionDetectorPowerStatus, detectorStatus: DetectorStatus)
+import java.util.UUID
+
+case class MotionDetector(id: UUID, powerStatus: MotionDetectorPowerStatus, detectorStatus: DetectorStatus)
 
 sealed trait MotionDetectorPowerStatus
 case object On extends MotionDetectorPowerStatus
@@ -17,11 +19,12 @@ trait MotionDetectorService[F[_]] {
   def setPower(motionDetector: MotionDetector, powerStatus: MotionDetectorPowerStatus): F[MotionDetector]
   def setMotion(motionDetector: MotionDetector, detectorStatus: DetectorStatus): F[MotionDetector]
   def read(motionDetector: MotionDetector): F[(MotionDetectorPowerStatus, DetectorStatus)]
+}
 
-
-  // TODO move these
+object MotionDetector {
   val powerStatusLens: Lens[MotionDetector, MotionDetectorPowerStatus] = GenLens[MotionDetector](_.powerStatus)
   val detectorStatusLens: Lens[MotionDetector, DetectorStatus] = GenLens[MotionDetector](_.detectorStatus)
+  val idGetter: Getter[MotionDetector, UUID] = Getter[MotionDetector, UUID](_.id)
 }
 
 
