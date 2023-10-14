@@ -23,5 +23,4 @@ trait SmartHomeService[F[_]] {
 
 object SmartHome {
   type ContactInfo = String
-
 }
