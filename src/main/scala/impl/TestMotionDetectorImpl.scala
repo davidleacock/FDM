@@ -1,12 +1,8 @@
 package impl
 
 import cats.data.EitherT
-import devices.motion.{
-  DetectorStatus,
-  MotionDetector,
-  MotionDetectorService,
-  MotionDetectorPowerStatus
-}
+import devices.motion.MotionDetector.{detectorStatusLens, powerStatusLens}
+import devices.motion.{DetectorStatus, MotionDetector, MotionDetectorPowerStatus, MotionDetectorService}
 import impl.DeviceResultType.DeviceResults
 
 import scala.concurrent.ExecutionContext.Implicits.global
