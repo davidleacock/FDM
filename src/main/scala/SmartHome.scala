@@ -3,7 +3,10 @@ import devices.light.LightSwitch
 import devices.motion.MotionDetector
 import devices.thermo.Thermostat
 
+import java.util.UUID
+
 case class SmartHome(
+  homeId: UUID,
   homeOwnerInfo: ContactInfo,
   lights: Seq[LightSwitch] = Seq.empty,
   motionDetectors: Seq[MotionDetector] = Seq.empty,
@@ -23,4 +26,6 @@ trait SmartHomeService[F[_]] {
 
 object SmartHome {
   type ContactInfo = String
+
+  // Add Lenses
 }
