@@ -19,5 +19,5 @@ trait SmartHomeRepository[F[_]] {
 }
 
 object SmartHomeRepository {
-  type SmartHomeError = String
+  case class SmartHomeError(msg: String)
 }
