@@ -3,6 +3,9 @@ import devices.light.LightSwitch
 import devices.motion.MotionDetector
 import devices.thermo.Thermostat
 
+import monocle.{Getter, Lens}
+import monocle.macros.GenLens
+
 import java.util.UUID
 
 case class SmartHome(
@@ -27,5 +30,11 @@ trait SmartHomeService[F[_]] {
 object SmartHome {
   type ContactInfo = String
 
-  // Add Lenses
+  val homeIdGetter: Getter[SmartHome, UUID] = Getter[SmartHome, UUID](_.homeId)
+
+  val ownerLens: Lens[SmartHome, ContactInfo] = GenLens[SmartHome](_.homeOwnerInfo)
+  val lightsLens: Lens[SmartHome, Seq[LightSwitch]] = GenLens[SmartHome](_.lights)
+  val motionLens: Lens[SmartHome, Seq[MotionDetector]] = GenLens[SmartHome](_.motionDetectors)
+  val thermostatsLens: Lens[SmartHome, Seq[Thermostat]] = GenLens[SmartHome](_.thermostats)
+
 }

@@ -1,4 +1,4 @@
-import SmartHome.ContactInfo
+import SmartHome.{ContactInfo, lightsLens, motionLens, thermostatsLens}
 import SmartHomeRepository.SmartHomeError
 import cats.{Id, Monad}
 import devices.light.LightSwitch
@@ -21,19 +21,19 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
 
   override def addThermostat(homeId: UUID, thermostat: Thermostat): Id[Either[SmartHomeError, SmartHome]] =
     storage.get(homeId) match {
-      case Some(home) => Right(home.copy(thermostats = home.thermostats :+ thermostat))
+      case Some(home) => Right(thermostatsLens.set(home.thermostats :+ thermostat)(home))
       case None => Left(SmartHomeError("home not found"))
     }
 
   override def addLight(homeId: UUID, lightSwitch: LightSwitch): Id[Either[SmartHomeError, SmartHome]] =
     storage.get(homeId) match {
-      case Some(home) => Right(home.copy(lights = home.lights :+ lightSwitch))
+      case Some(home) => Right(lightsLens.set(home.lights :+ lightSwitch)(home))
       case None => Left(SmartHomeError("home not found"))
     }
 
   override def addMotionDetector(homeId: UUID, motionDetector: MotionDetector): Id[Either[SmartHomeError, SmartHome]] =
     storage.get(homeId) match {
-      case Some(home) => Right(home.copy(motionDetectors = home.motionDetectors :+ motionDetector))
+      case Some(home) => Right(motionLens.set(home.motionDetectors :+ motionDetector)(home))
       case None => Left(SmartHomeError("home not found"))
     }
 
@@ -43,9 +43,11 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
       case None => Left(SmartHomeError("home not found"))
     }
 
+  // TODO - Does this API need updated? How do we know what device changes? Or do we update everything? Seems wasteful
+  // TODO - What FP data types would be good for that?
   override def updateSmartHome(smartHome: SmartHome): Id[Either[SmartHomeError, SmartHome]] = {
     storage.get(smartHome.homeId) match {
-      case Some(home) => Right(home.copy(???))
+      case Some(home) => Right(home)
       case None => Left(SmartHomeError("home not found"))
     }
   }
