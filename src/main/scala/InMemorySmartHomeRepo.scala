@@ -69,7 +69,7 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
 
         // TODO Finish
         device match {
-          case LightSwitch(id, lightStatus) => ???
+          case LightSwitch(id, lightStatus) => smartHome.lights.find(_.id == id).map(switch => update(home, lightsLens, switch)(updateDevice))
           case MotionDetector(id, powerStatus, detectorStatus) => ???
           case Thermostat(id, currentTemp, setTemp) => ???
           case _ => Some(home)
@@ -96,6 +96,8 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
       case None       => Left(SmartHomeError("home not found"))
     }
   }
+
+  // TODO fix these,  we want to update a specific field within the device
 
   def update[A](
     home: SmartHome,
