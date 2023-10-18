@@ -67,7 +67,7 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
       case Some(home) => {
 
 
-        // TODO Finish
+        // TODO Finish and fix
         device match {
           case LightSwitch(id, lightStatus) => smartHome.lights.find(_.id == id).map(switch => update(home, lightsLens, switch)(updateDevice))
           case MotionDetector(id, powerStatus, detectorStatus) => ???
