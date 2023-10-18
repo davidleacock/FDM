@@ -1,5 +1,6 @@
 import SmartHome.ContactInfo
 import SmartHomeRepository.SmartHomeError
+import devices.Device
 import devices.light.LightSwitch
 import devices.motion.MotionDetector
 import devices.thermo.Thermostat
@@ -15,7 +16,7 @@ trait SmartHomeRepository[F[_]] {
   def addMotionDetector(homeId: UUID, motionDetector: MotionDetector): F[Either[SmartHomeError, SmartHome]]
 
   def getHome(homeId: UUID): F[Either[SmartHomeError, SmartHome]]
-  def updateSmartHome(smartHome: SmartHome): F[Either[SmartHomeError, SmartHome]]
+  def updateSmartHome(device: Device, smartHome: SmartHome): F[Either[SmartHomeError, SmartHome]]
 }
 
 object SmartHomeRepository {

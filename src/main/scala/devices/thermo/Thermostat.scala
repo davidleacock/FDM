@@ -1,11 +1,12 @@
 package devices.thermo
 
+import devices.Device
 import monocle.macros.GenLens
 import monocle.{Getter, Lens}
 
 import java.util.UUID
 
-case class Thermostat(id: UUID, currentTemp: Temperature, setTemp: Temperature)
+case class Thermostat(id: UUID, currentTemp: Temperature, setTemp: Temperature) extends Device
 
 case class Temperature(value: Double, unit: TemperatureUnit)
 

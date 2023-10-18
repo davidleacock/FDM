@@ -1,11 +1,12 @@
 package devices.light
 
+import devices.Device
 import monocle.{Getter, Lens}
 import monocle.macros.GenLens
 
 import java.util.UUID
 
-case class LightSwitch(id: UUID, lightStatus: LightStatus)
+case class LightSwitch(id: UUID, lightStatus: LightStatus) extends Device
 
 sealed trait LightStatus
 case object On extends LightStatus

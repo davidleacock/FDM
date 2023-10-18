@@ -1,11 +1,12 @@
 package devices.motion
 
+import devices.Device
 import monocle.{Getter, Lens}
 import monocle.macros.GenLens
 
 import java.util.UUID
 
-case class MotionDetector(id: UUID, powerStatus: MotionDetectorPowerStatus, detectorStatus: DetectorStatus)
+case class MotionDetector(id: UUID, powerStatus: MotionDetectorPowerStatus, detectorStatus: DetectorStatus) extends Device
 
 sealed trait MotionDetectorPowerStatus
 case object On extends MotionDetectorPowerStatus
