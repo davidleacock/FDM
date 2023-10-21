@@ -47,3 +47,4 @@ Todos:
   - Wire up repo to the service, kleisli arrow
   - Replace F-bounded with type classes
   - Create a way to call the APIs
+  - Organize modules
