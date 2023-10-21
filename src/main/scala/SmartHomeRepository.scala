@@ -16,7 +16,7 @@ trait SmartHomeRepository[F[_]] {
   def addMotionDetector(homeId: UUID, motionDetector: MotionDetector): F[Either[SmartHomeError, SmartHome]]
 
   def getHome(homeId: UUID): F[Either[SmartHomeError, SmartHome]]
-  def updateSmartHome(device: Device, smartHome: SmartHome): F[Either[SmartHomeError, SmartHome]]
+  def updateSmartHome[A <: Device[A]](device: A, smartHome: SmartHome): F[Either[SmartHomeError, SmartHome]]
 }
 
 object SmartHomeRepository {

@@ -1,12 +1,15 @@
 package devices.light
 
 import devices.Device
-import monocle.{Getter, Lens}
 import monocle.macros.GenLens
+import monocle.{Getter, Lens}
 
 import java.util.UUID
 
-case class LightSwitch(id: UUID, lightStatus: LightStatus) extends Device
+case class LightSwitch(id: UUID, lightStatus: LightStatus) extends Device[LightSwitch] {
+  override def update(other: LightSwitch): LightSwitch =
+    LightSwitch.lightStatusLens.set(other.lightStatus)(this)
+}
 
 sealed trait LightStatus
 case object On extends LightStatus

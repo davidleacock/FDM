@@ -1,6 +1,7 @@
 import SmartHome.ContactInfo
 import SmartHomeRepository.SmartHomeError
 import cats.Monad
+import devices.Device
 import devices.light.LightSwitch
 import devices.motion.MotionDetector
 import devices.thermo.Thermostat
@@ -12,7 +13,7 @@ import java.util.UUID
   I could go.  I would still need to pass in some kind of database object table and way to actually persist
  */
 
-class MonadicImplSmartHomeRepo[F[_]: Monad] extends SmartHomeRepository[F] {
+abstract class MonadicImplSmartHomeRepo[F[_]: Monad] extends SmartHomeRepository[F] {
   override def create(ownerInfo: ContactInfo): F[SmartHome] = {
     val homeId = UUID.randomUUID()
     Monad[F].pure(SmartHome(homeId, ownerInfo))
@@ -41,7 +42,5 @@ class MonadicImplSmartHomeRepo[F[_]: Monad] extends SmartHomeRepository[F] {
 
   override def getHome(homeId: UUID): F[Either[SmartHomeError, SmartHome]] = ???
 
-  override def updateSmartHome(
-    smartHome: SmartHome
-  ): F[Either[SmartHomeError, SmartHome]] = ???
+  override def updateSmartHome[A <: Device[A]](device: A, smartHome: SmartHome): F[Either[SmartHomeError, SmartHome]] = ???
 }

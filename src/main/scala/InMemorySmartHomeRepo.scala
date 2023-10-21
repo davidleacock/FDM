@@ -1,14 +1,13 @@
 import SmartHome.{ContactInfo, lightsLens, motionLens, thermostatsLens}
 import SmartHomeRepository.SmartHomeError
-import cats.{Id, Monad}
+import cats.Id
 import devices.Device
 import devices.light.LightSwitch
 import devices.motion.MotionDetector
 import devices.thermo.Thermostat
-import monocle.Lens
 
 import java.util.UUID
-import scala.collection.{immutable, mutable}
+import scala.collection.mutable
 import scala.language.reflectiveCalls
 
 class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
@@ -57,62 +56,41 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
       case None       => Left(SmartHomeError("home not found"))
     }
 
-  // TODO - Does this API need updated? How do we know what device changes? Or do we update everything? Seems wasteful
-  // TODO - What FP data types would be good for that?
-  override def updateSmartHome(
-    device: Device,
+  override def updateSmartHome[A <: Device[A]](
+    device: A,
     smartHome: SmartHome
   ): Id[Either[SmartHomeError, SmartHome]] = {
     storage.get(smartHome.homeId) match {
-      case Some(home) => {
+      case Some(home) =>
+        Right {
+          device match {
+            case lightSwitch: LightSwitch =>
+              home.copy(lights = updateDevices(home.lights, lightSwitch))
 
+            case motionDetector: MotionDetector =>
+              home.copy(motionDetectors =
+                updateDevices(home.motionDetectors, motionDetector)
+              )
 
-        // TODO Finish and fix
-        device match {
-          case LightSwitch(id, lightStatus) => smartHome.lights.find(_.id == id).map(switch => update(home, lightsLens, switch)(updateDevice))
-          case MotionDetector(id, powerStatus, detectorStatus) => ???
-          case Thermostat(id, currentTemp, setTemp) => ???
-          case _ => Some(home)
+            case thermostat: Thermostat =>
+              home.copy(thermostats =
+                updateDevices(home.thermostats, thermostat)
+              )
+          }
         }
 
-
-        // TOOD fix with real code
-        val light: LightSwitch = smartHome.lights.filter(_.id == UUID.randomUUID()).head
-        val motion: MotionDetector = smartHome.motionDetectors.filter(_.id == UUID.randomUUID()).head
-        val thermostat: Thermostat = smartHome.thermostats.filter(_.id == UUID.randomUUID()).head
-
-        val lights = update(home, lightsLens, light)(updateDevice).lights
-        val motions = update(home, motionLens, motion)(updateDevice).motionDetectors
-        val thermos = update(home, thermostatsLens, thermostat)(updateDevice).thermostats
-
-        val updatedHome = home.copy(
-          lights = lights,
-          motionDetectors = motions,
-          thermostats = thermos
-        )
-
-        Right(updatedHome)
-      }
-      case None       => Left(SmartHomeError("home not found"))
+      case None => Left(SmartHomeError("Home not found."))
     }
   }
 
-  // TODO fix these,  we want to update a specific field within the device
-
-  def update[A](
-    home: SmartHome,
-    lens: Lens[SmartHome, Seq[A]],
+  private def updateDevices[A <: Device[A]](
+    devices: Seq[A],
     device: A
-  )(updateFn: (Seq[A], A) => Seq[A]
-  ): SmartHome = {
-    val updatedDevices = updateFn(lens.get(home), device)
-    lens.set(updatedDevices)(home)
-  }
+  ): Seq[A] = {
 
-  def updateDevice[A](devices: Seq[A], device:A)(implicit ev: A <:< { def id: UUID } ): Seq[A] = {
     devices.map {
-      case d if d.id == device.id => device
-      case other => other
+      case d if d.id == device.id => device.update(d)
+      case other                  => other
     }
   }
 

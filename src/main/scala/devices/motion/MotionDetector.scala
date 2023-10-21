@@ -1,12 +1,17 @@
 package devices.motion
 
 import devices.Device
+import devices.motion.MotionDetector.{detectorStatusLens, powerStatusLens}
 import monocle.{Getter, Lens}
 import monocle.macros.GenLens
 
 import java.util.UUID
 
-case class MotionDetector(id: UUID, powerStatus: MotionDetectorPowerStatus, detectorStatus: DetectorStatus) extends Device
+case class MotionDetector(id: UUID, powerStatus: MotionDetectorPowerStatus, detectorStatus: DetectorStatus) extends Device[MotionDetector] {
+  override def update(other: MotionDetector): MotionDetector = {
+      powerStatusLens.set(other.powerStatus)(detectorStatusLens.set(other.detectorStatus)(this))
+  }
+}
 
 sealed trait MotionDetectorPowerStatus
 case object On extends MotionDetectorPowerStatus

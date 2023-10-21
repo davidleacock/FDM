@@ -1,12 +1,17 @@
 package devices.thermo
 
 import devices.Device
+import devices.thermo.Thermostat.temperatureLens
 import monocle.macros.GenLens
 import monocle.{Getter, Lens}
 
 import java.util.UUID
 
-case class Thermostat(id: UUID, currentTemp: Temperature, setTemp: Temperature) extends Device
+// TODO if this is meant to be an immutable data structure then setTemp may be a bad idea
+// setting the temp field should just set the temp field
+case class Thermostat(id: UUID, currentTemp: Temperature, setTemp: Temperature) extends Device[Thermostat] {
+  override def update(other: Thermostat): Thermostat = temperatureLens.set(other.setTemp)(this)
+}
 
 case class Temperature(value: Double, unit: TemperatureUnit)
 

@@ -2,9 +2,8 @@ import SmartHome.ContactInfo
 import devices.light.LightSwitch
 import devices.motion.MotionDetector
 import devices.thermo.Thermostat
-
-import monocle.{Getter, Lens}
 import monocle.macros.GenLens
+import monocle.{Getter, Lens}
 
 import java.util.UUID
 
@@ -36,5 +35,4 @@ object SmartHome {
   val lightsLens: Lens[SmartHome, Seq[LightSwitch]] = GenLens[SmartHome](_.lights)
   val motionLens: Lens[SmartHome, Seq[MotionDetector]] = GenLens[SmartHome](_.motionDetectors)
   val thermostatsLens: Lens[SmartHome, Seq[Thermostat]] = GenLens[SmartHome](_.thermostats)
-
 }

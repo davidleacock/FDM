@@ -2,6 +2,7 @@ package devices
 
 import java.util.UUID
 
-trait Device {
+trait Device[A <: Device[A]] {
   def id: UUID
+  def update(other: A): A
 }
