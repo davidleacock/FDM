@@ -1,4 +1,4 @@
-import SmartHome.{ContactInfo, lightsLens, motionLens, thermostatsLens}
+import SmartHome.{ ContactInfo, lightsLens, motionLens, thermostatsLens }
 import SmartHomeRepository.SmartHomeError
 import cats.Id
 import devices.Device
@@ -78,7 +78,6 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
               )
           }
         }
-
       case None => Left(SmartHomeError("Home not found."))
     }
   }
@@ -87,11 +86,9 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
     devices: Seq[A],
     device: A
   ): Seq[A] = {
-
     devices.map {
       case d if d.id == device.id => device.update(d)
       case other                  => other
     }
   }
-
 }
