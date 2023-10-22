@@ -44,7 +44,10 @@ However from reading about this it seems like TypeClasses are much cleaner way t
 Todos:
   - ~~Finish InMemory repo~~
   - ~~Implement the algebra APIs and flesh them out further~~
-  - Wire up repo to the service, kleisli arrow
+  - ~~Wire up repo to the service, kleisli arrow~~
   - Replace F-bounded with type classes
   - Create a way to call the APIs
-  - Organize modules
+  - ~~Organize modules~~
+  - Investigate State monad for SmartHomeServiceImpl
+  - Create device impl that mimic read-world devices (random data etc)
+  - Finish tests for SmartHomeServiceImpl
