@@ -42,7 +42,7 @@ case class LightSwitch(...) extends Device[LightSwitch]
 <b>TODO!🧠 </b> The SmartHome algebra makes use of these as the return type,  will add notes on why this is shortly..
 
 
-Todos:
+## <b>TODOs 🧠</b> :
   - ~~Finish InMemory repo~~
   - ~~Implement the algebra APIs and flesh them out further~~
   - ~~Wire up repo to the service, kleisli arrow~~
