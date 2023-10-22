@@ -1,4 +1,4 @@
-package devices.locks
+package smarthome.devices.locks
 
 import monocle.{Getter, Lens}
 import monocle.macros.GenLens

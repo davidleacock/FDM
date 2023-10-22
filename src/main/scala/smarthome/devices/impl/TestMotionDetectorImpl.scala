@@ -1,9 +1,9 @@
-package impl
+package smarthome.devices.impl
 
 import cats.data.EitherT
-import devices.motion.MotionDetector.{detectorStatusLens, powerStatusLens}
-import devices.motion.{DetectorStatus, MotionDetector, MotionDetectorPowerStatus, MotionDetectorService}
-import impl.DeviceResultType.DeviceResults
+import smarthome.devices.motion.MotionDetector.{detectorStatusLens, powerStatusLens}
+import DeviceResultType.DeviceResults
+import smarthome.devices.motion.{DetectorStatus, MotionDetector, MotionDetectorPowerStatus, MotionDetectorService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

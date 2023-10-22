@@ -1,10 +1,14 @@
-import SmartHome.ContactInfo
-import SmartHomeRepository.SmartHomeError
+package smarthome.repo.impl
+
 import cats.Monad
-import devices.Device
-import devices.light.LightSwitch
-import devices.motion.MotionDetector
-import devices.thermo.Thermostat
+import smarthome.SmartHome
+import smarthome.SmartHome.ContactInfo
+import smarthome.devices.Device
+import smarthome.devices.light.LightSwitch
+import smarthome.devices.motion.MotionDetector
+import smarthome.devices.thermo.Thermostat
+import smarthome.repo.SmartHomeRepository
+import smarthome.repo.SmartHomeRepository.SmartHomeError
 
 import java.util.UUID
 

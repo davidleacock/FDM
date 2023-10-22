@@ -1,8 +1,8 @@
-package devices.light
+package smarthome.devices.light
 
-import devices.Device
 import monocle.macros.GenLens
 import monocle.{Getter, Lens}
+import smarthome.devices.Device
 
 import java.util.UUID
 

@@ -1,9 +1,9 @@
-package impl
+package smarthome.devices.impl
 
 import cats.data.EitherT
-import devices.light.LightSwitch.lightStatusLens
-import devices.light.{ LightStatus, LightSwitch, LightSwitchService }
-import impl.DeviceResultType.DeviceResults
+import smarthome.devices.impl.DeviceResultType.DeviceResults
+import smarthome.devices.light.LightSwitch.lightStatusLens
+import smarthome.devices.light.{LightStatus, LightSwitch, LightSwitchService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

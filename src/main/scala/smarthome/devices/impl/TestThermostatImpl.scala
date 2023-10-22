@@ -1,9 +1,9 @@
-package impl
+package smarthome.devices.impl
 
 import cats.data.EitherT
-import devices.thermo.Thermostat.temperatureLens
-import devices.thermo.{Temperature, Thermostat, ThermostatService}
-import impl.DeviceResultType.DeviceResults
+import smarthome.devices.thermo.Thermostat.temperatureLens
+import DeviceResultType.DeviceResults
+import smarthome.devices.thermo.{Temperature, Thermostat, ThermostatService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

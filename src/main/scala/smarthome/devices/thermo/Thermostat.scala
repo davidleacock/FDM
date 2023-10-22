@@ -1,9 +1,9 @@
-package devices.thermo
+package smarthome.devices.thermo
 
-import devices.Device
-import devices.thermo.Thermostat.temperatureLens
+import Thermostat.temperatureLens
 import monocle.macros.GenLens
 import monocle.{Getter, Lens}
+import smarthome.devices.Device
 
 import java.util.UUID
 

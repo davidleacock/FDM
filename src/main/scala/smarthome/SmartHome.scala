@@ -1,9 +1,11 @@
-import SmartHome.ContactInfo
-import devices.light.LightSwitch
-import devices.motion.MotionDetector
-import devices.thermo.Thermostat
+package smarthome
+
 import monocle.macros.GenLens
 import monocle.{Getter, Lens}
+import smarthome.SmartHome.ContactInfo
+import smarthome.devices.light.LightSwitch
+import smarthome.devices.motion.MotionDetector
+import smarthome.devices.thermo.Thermostat
 
 import java.util.UUID
 

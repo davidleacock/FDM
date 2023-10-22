@@ -1,4 +1,4 @@
-package impl
+package smarthome.devices.impl
 
 import cats.data.EitherT
 

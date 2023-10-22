@@ -1,4 +1,4 @@
-package devices
+package smarthome.devices
 
 import java.util.UUID
 

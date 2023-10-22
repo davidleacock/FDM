@@ -1,9 +1,9 @@
-package devices.motion
+package smarthome.devices.motion
 
-import devices.Device
-import devices.motion.MotionDetector.{detectorStatusLens, powerStatusLens}
+import MotionDetector.{detectorStatusLens, powerStatusLens}
 import monocle.{Getter, Lens}
 import monocle.macros.GenLens
+import smarthome.devices.Device
 
 import java.util.UUID
 
