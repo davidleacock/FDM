@@ -37,9 +37,21 @@ case class LightSwitch(...) extends Device[LightSwitch]
 
 <b>TODO!🧠 </b>However from reading about this it seems like TypeClasses are much cleaner way to do so, which is something I'll explore further
 
+<br>
 
 ### Kleisli Arrows
 <b>TODO!🧠 </b> The SmartHome algebra makes use of these as the return type,  will add notes on why this is shortly..
+
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 
 ## <b>TODOs 🧠</b> :
