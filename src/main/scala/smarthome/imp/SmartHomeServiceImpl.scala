@@ -14,21 +14,26 @@ import smarthome.repo.SmartHomeRepository.RepositoryError
 import smarthome.{SmartHome, SmartHomeService}
 
 class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F]) extends SmartHomeService[F] {
-  override def create: Kleisli[F, SmartHome, Either[SmartHomeError, SmartHome]] =
-    Kleisli(home => repo.create("Contact Info...").map(_.leftMap(repoError => SmartHomeError(repoError.msg))))
 
-  override def addDevice: Kleisli[F, (Device[_], SmartHome), Either[SmartHomeError, SmartHome]] = Kleisli {
+  //TODO The repo for create is making this look kind of off
+  override def create(): Kleisli[F, SmartHome, Either[SmartHomeError, SmartHome]] =
+    Kleisli(home => repo.create("Contact Info...").map(mapRepoError))
+
+  override def addDevice(): Kleisli[F, (Device[_], SmartHome), Either[SmartHomeError, SmartHome]] = Kleisli {
     case (device, home) =>
       device match {
         case light: LightSwitch =>
-          repo.addLight(home.homeId, light).map(_.leftMap(mapRepoError))
+          repo.addLight(home.homeId, light).map(mapRepoError)
         case motion: MotionDetector =>
-          repo.addMotionDetector(home.homeId, motion).map(_.leftMap(mapRepoError))
-        case thermo: Thermostat =>
-          repo.addThermostat(home.homeId, thermo).map(_.leftMap(mapRepoError))
+          repo.addMotionDetector(home.homeId, motion).map(mapRepoError)
+        case thermostat: Thermostat =>
+          repo.addThermostat(home.homeId, thermostat).map(mapRepoError)
         case _ => Monad[F].pure(Left(SmartHomeError("Unknown device")))
       }
   }
 
-  private def mapRepoError(repoError: RepositoryError): SmartHomeError = SmartHomeError(repoError.msg)
+
+  private def mapRepoError(either: Either[RepositoryError, SmartHome]): Either[SmartHomeError, SmartHome] = {
+    either.leftMap(repoError => SmartHomeError(repoError.msg))
+  }
 }

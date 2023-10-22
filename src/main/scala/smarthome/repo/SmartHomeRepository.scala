@@ -12,6 +12,8 @@ import java.util.UUID
 
 trait SmartHomeRepository[F[_]] {
 
+  // TODO review this to make sure it makes sense still, these calls seem too specific
+
   def create(ownerInfo: ContactInfo): F[Either[RepositoryError, SmartHome]]
 
   def addThermostat(homeId: UUID, thermostat: Thermostat): F[Either[RepositoryError, SmartHome]]
