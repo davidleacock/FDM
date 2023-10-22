@@ -28,18 +28,18 @@ in the method
 ```
 def update(lightSwitch: LightSwitch) LightSwitch
 ```
-In order to do this I can make use of F-Bounded Polymorphism
+In order to do this I can make use of `F-Bounded Polymorphism`
 ```
 trait Device[A <: Device[A]] 
 
 case class LightSwitch(...) extends Device[LightSwitch]
 ```
 
-However from reading about this it seems like TypeClasses are much cleaner way to do so, which is something I'll explore further
+<b>TODO!🧠 </b>However from reading about this it seems like TypeClasses are much cleaner way to do so, which is something I'll explore further
 
 
 ### Kleisli Arrows
-The SmartHome algebra makes use of these as the return type,  will add notes on why this is shortly..
+<b>TODO!🧠 </b> The SmartHome algebra makes use of these as the return type,  will add notes on why this is shortly..
 
 
 Todos:
