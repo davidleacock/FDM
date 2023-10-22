@@ -2,13 +2,13 @@ package smarthome.repo.impl
 
 import cats.Monad
 import smarthome.SmartHome
-import smarthome.SmartHome.ContactInfo
+import smarthome.SmartHome.{ContactInfo, SmartHomeError}
 import smarthome.devices.Device
 import smarthome.devices.light.LightSwitch
 import smarthome.devices.motion.MotionDetector
 import smarthome.devices.thermo.Thermostat
 import smarthome.repo.SmartHomeRepository
-import smarthome.repo.SmartHomeRepository.SmartHomeError
+import smarthome.repo.SmartHomeRepository.RepositoryError
 
 import java.util.UUID
 
@@ -18,15 +18,13 @@ import java.util.UUID
  */
 
 abstract class MonadicImplSmartHomeRepo[F[_]: Monad] extends SmartHomeRepository[F] {
-  override def create(ownerInfo: ContactInfo): F[SmartHome] = {
-    val homeId = UUID.randomUUID()
-    Monad[F].pure(SmartHome(homeId, ownerInfo))
-  }
+
+  override def create(ownerInfo: ContactInfo): F[Either[RepositoryError, SmartHome]] = ???
 
   override def addThermostat(
     homeId: UUID,
     thermostat: Thermostat
-  ): F[Either[SmartHomeError, SmartHome]] = {
+  ): F[Either[RepositoryError, SmartHome]] = {
     Monad[F].pure(
       Right(
         SmartHome(homeId, homeOwnerInfo = "info", thermostats = Seq(thermostat))
@@ -37,14 +35,14 @@ abstract class MonadicImplSmartHomeRepo[F[_]: Monad] extends SmartHomeRepository
   override def addLight(
     homeId: UUID,
     lightSwitch: LightSwitch
-  ): F[Either[SmartHomeError, SmartHome]] = ???
+  ): F[Either[RepositoryError, SmartHome]] = ???
 
   override def addMotionDetector(
     homeId: UUID,
     motionDetector: MotionDetector
-  ): F[Either[SmartHomeError, SmartHome]] = ???
+  ): F[Either[RepositoryError, SmartHome]] = ???
 
-  override def getHome(homeId: UUID): F[Either[SmartHomeError, SmartHome]] = ???
+  override def getHome(homeId: UUID): F[Either[RepositoryError, SmartHome]] = ???
 
-  override def updateSmartHome[A <: Device[A]](device: A, smartHome: SmartHome): F[Either[SmartHomeError, SmartHome]] = ???
+  override def updateSmartHome[A <: Device[A]](device: A, smartHome: SmartHome): F[Either[RepositoryError, SmartHome]] = ???
 }

@@ -8,7 +8,7 @@ import smarthome.devices.light.LightSwitch
 import smarthome.devices.motion.MotionDetector
 import smarthome.devices.thermo.Thermostat
 import smarthome.repo.SmartHomeRepository
-import smarthome.repo.SmartHomeRepository.SmartHomeError
+import smarthome.repo.SmartHomeRepository.RepositoryError
 
 import java.util.UUID
 import scala.collection.mutable
@@ -18,52 +18,52 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
 
   private val storage: mutable.Map[UUID, SmartHome] = mutable.Map.empty
 
-  override def create(ownerInfo: ContactInfo): Id[SmartHome] = {
+  override def create(ownerInfo: ContactInfo): Id[Either[RepositoryError, SmartHome]] = {
     val homeId = UUID.randomUUID()
     val home = SmartHome(homeId, ownerInfo)
     storage.update(homeId, home)
-    home
+    Right(home)
   }
 
   override def addThermostat(
     homeId: UUID,
     thermostat: Thermostat
-  ): Id[Either[SmartHomeError, SmartHome]] =
+  ): Id[Either[RepositoryError, SmartHome]] =
     storage.get(homeId) match {
       case Some(home) =>
         Right(thermostatsLens.set(home.thermostats :+ thermostat)(home))
-      case None => Left(SmartHomeError("home not found"))
+      case None => Left(RepositoryError("home not found"))
     }
 
   override def addLight(
     homeId: UUID,
     lightSwitch: LightSwitch
-  ): Id[Either[SmartHomeError, SmartHome]] =
+  ): Id[Either[RepositoryError, SmartHome]] =
     storage.get(homeId) match {
       case Some(home) => Right(lightsLens.set(home.lights :+ lightSwitch)(home))
-      case None       => Left(SmartHomeError("home not found"))
+      case None       => Left(RepositoryError("home not found"))
     }
 
   override def addMotionDetector(
     homeId: UUID,
     motionDetector: MotionDetector
-  ): Id[Either[SmartHomeError, SmartHome]] =
+  ): Id[Either[RepositoryError, SmartHome]] =
     storage.get(homeId) match {
       case Some(home) =>
         Right(motionLens.set(home.motionDetectors :+ motionDetector)(home))
-      case None => Left(SmartHomeError("home not found"))
+      case None => Left(RepositoryError("home not found"))
     }
 
-  override def getHome(homeId: UUID): Id[Either[SmartHomeError, SmartHome]] =
+  override def getHome(homeId: UUID): Id[Either[RepositoryError, SmartHome]] =
     storage.get(homeId) match {
       case Some(home) => Right(home)
-      case None       => Left(SmartHomeError("home not found"))
+      case None       => Left(RepositoryError("home not found"))
     }
 
   override def updateSmartHome[A <: Device[A]](
     device: A,
     smartHome: SmartHome
-  ): Id[Either[SmartHomeError, SmartHome]] = {
+  ): Id[Either[RepositoryError, SmartHome]] = {
     storage.get(smartHome.homeId) match {
       case Some(home) =>
         Right {
@@ -82,7 +82,7 @@ class InMemorySmartHomeRepo extends SmartHomeRepository[Id] {
               )
           }
         }
-      case None => Left(SmartHomeError("Home not found."))
+      case None => Left(RepositoryError("Home not found."))
     }
   }
 

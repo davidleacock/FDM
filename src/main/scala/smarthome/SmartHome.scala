@@ -1,8 +1,10 @@
 package smarthome
 
+import cats.data.Kleisli
 import monocle.macros.GenLens
 import monocle.{Getter, Lens}
-import smarthome.SmartHome.ContactInfo
+import smarthome.SmartHome.{ContactInfo, SmartHomeError}
+import smarthome.devices.Device
 import smarthome.devices.light.LightSwitch
 import smarthome.devices.motion.MotionDetector
 import smarthome.devices.thermo.Thermostat
@@ -17,19 +19,19 @@ case class SmartHome(
   thermostats: Seq[Thermostat] = Seq.empty)
 
 trait SmartHomeService[F[_]] {
-  def addLightSwitch(home: SmartHome, light: LightSwitch): F[SmartHome]
-  def addMotionDetector(home: SmartHome, motion: MotionDetector): F[SmartHome]
-  def addThermostat(home: SmartHome, thermostat: Thermostat): F[SmartHome]
 
-  def setMotionDetector(home: SmartHome, motion: MotionDetector): F[SmartHome]
-  def setThermostat(home: SmartHome, thermostat: Thermostat): F[SmartHome]
-  def setLightSwitch(home: SmartHome, light: LightSwitch): F[SmartHome]
+  def create: Kleisli[F, SmartHome, Either[SmartHomeError, SmartHome]]
+  def addDevice: Kleisli[F, (Device[_], SmartHome), Either[SmartHomeError, SmartHome]]
 
-  def contactOwner(home: SmartHome): F[ContactInfo]
+//  def setDevice(device: Device[_], smartHome: SmartHome): F[SmartHome]
+
+//  def contactOwner(home: SmartHome): F[ContactInfo]
 }
 
 object SmartHome {
   type ContactInfo = String
+
+  case class SmartHomeError(msg: String)
 
   val homeIdGetter: Getter[SmartHome, UUID] = Getter[SmartHome, UUID](_.homeId)
 
