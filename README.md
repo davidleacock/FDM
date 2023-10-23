@@ -12,6 +12,8 @@ or semantics of a domain.  This is an interface (or trait) that defines the
 main operations that can be performed on or within that domain, without specify *how* these operations
 are implemented
 
+<b>TODO!🧠 </b> The benefit of higher kinded types in algebra design
+
 Current design experiment for Device is using an F-Bounded polymorphism. So any class that extends
 `Device` must do so in a way that specifics itself as the parameter for `Device`.  Where this comes into play
 is the update() method in the device. 
