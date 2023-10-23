@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "com.github.julien-truffaut" %%  "monocle-macro" % monocleVersion,
   "com.github.julien-truffaut" %%  "monocle-law"   % monocleVersion % "test",
   "org.scalactic" %% "scalactic" % "3.2.17",
-  "org.scalatest" %% "scalatest" % "3.2.17" % "test"
+  "org.scalatest" %% "scalatest" % "3.2.17" % "test",
+  "org.typelevel" %% "cats-effect" % "3.5.2"
 )
 
