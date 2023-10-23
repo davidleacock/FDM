@@ -22,10 +22,8 @@ trait SmartHomeService[F[_]] {
 
   def create(): Kleisli[F, SmartHome, Either[SmartHomeError, SmartHome]]
   def addDevice(): Kleisli[F, (Device[_], SmartHome), Either[SmartHomeError, SmartHome]]
-
-//  def setDevice(device: Device[_], smartHome: SmartHome): F[SmartHome]
-
-//  def contactOwner(home: SmartHome): F[ContactInfo]
+  def updateDevice(): Kleisli[F, (Device[_], SmartHome), Either[SmartHomeError, SmartHome]]
+  def contactOwner():Kleisli[F, (SmartHome), Either[SmartHomeError, ContactInfo]]
 }
 
 object SmartHome {
