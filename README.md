@@ -136,7 +136,7 @@ case class LightSwitch(...) extends Device[LightSwitch]
   - ~~Organize modules~~
   - Investigate State monad for SmartHomeServiceImpl
   - Create device impl that mimic read-world devices (random data etc)
-  - Finish tests for SmartHomeServiceImpl
+  - ~~Finish tests for SmartHomeServiceImpl~~
   - Logging
-  - Review domain concepts/api/repo, make sure it aligns
+  - ~~Review domain concepts/api/repo, make sure it aligns~~
   - Device Rule engine? 
