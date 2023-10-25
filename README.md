@@ -112,9 +112,11 @@ case class LightSwitch(...) extends Device[LightSwitch]
 
 ***
 ### Kleisli Arrows
-<b>TODO!🧠 </b> The SmartHome algebra makes use of these as the return type,  will add notes on why this is shortly..
-
-
+<b>TODO!🧠 </b> The SmartHome algebra makes use of these as the return type,  will add notes on why this is shortly...
+***
+### Validator
+<b>TODO!🧠 </b> Added Validator for the SmartHomeServiceImpl. Will explain this type and how it will be used shortly...
+***
 
 <br>
 <br>

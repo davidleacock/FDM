@@ -6,6 +6,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import smarthome.SmartHome
 import smarthome.SmartHome.ContactInfo
+import smarthome.SmartHome.SmartHomeError.GenericError
 import smarthome.devices.light.{LightSwitch, Off => LightOff, On => LightOn}
 import smarthome.devices.motion.{MotionDetected, MotionDetector, MotionNotDetected, On => MotionOn}
 import smarthome.devices.thermo.{Celsius, Temperature, Thermostat}
@@ -154,6 +155,29 @@ class SmartHomeServiceImplTest extends AnyWordSpec with Matchers {
       results match {
         case Right(homeResult) => homeResult.thermostats should contain(thermostat)
         case Left(error) => fail(s"Unexpected test error: $error")
+      }
+    }
+
+    "won't update a Thermostat if temperature is outside range" in {
+      val homeId = UUID.randomUUID()
+      val contactInfo = ContactInfo("david", "david@computer.com")
+      val home = SmartHome(homeId, contactInfo)
+
+      service.createSmartHome.run(home).unsafeRunSync()
+
+      val thermostatId = UUID.randomUUID()
+      val thermostat = Thermostat(thermostatId, Temperature(100, Celsius))
+
+      service.addDeviceToSmartHome.run((thermostat, home)).unsafeRunSync()
+
+      val updatedThermostat = Thermostat(thermostatId, Temperature(5000, Celsius))
+
+      val results =
+        service.updateDeviceAtSmartHome.run((updatedThermostat, home)).unsafeRunSync()
+
+      results match {
+        case Right(_) => fail(s"This should have returned an error")
+        case Left(error) => error shouldBe GenericError("ValidationError: Temperature must be between [0, 100]")
       }
     }
   }
