@@ -13,7 +13,7 @@ object TestThermostatImpl extends ThermostatService[DeviceResults] {
   override def read(thermostat: Thermostat): DeviceResults[Temperature] =
     EitherT.right {
       Future {
-        thermostat.currentTemp
+        thermostat.temp
       }
     }
 

@@ -7,10 +7,9 @@ import smarthome.devices.Device
 
 import java.util.UUID
 
-// TODO if this is meant to be an immutable data structure then setTemp may be a bad idea
-// setting the temp field should just set the temp field
-case class Thermostat(id: UUID, currentTemp: Temperature, setTemp: Temperature) extends Device[Thermostat] {
-  override def update(other: Thermostat): Thermostat = temperatureLens.set(other.setTemp)(this)
+
+case class Thermostat(id: UUID, temp: Temperature) extends Device[Thermostat] {
+  override def update(other: Thermostat): Thermostat = temperatureLens.set(other.temp)(this)
 }
 
 case class Temperature(value: Double, unit: TemperatureUnit)
@@ -24,7 +23,7 @@ trait ThermostatService[F[_]] {
 }
 
 object Thermostat {
-  val temperatureLens: Lens[Thermostat, Temperature] = GenLens[Thermostat](_.setTemp)
+  val temperatureLens: Lens[Thermostat, Temperature] = GenLens[Thermostat](_.temp)
   val idGetter: Getter[Thermostat, UUID] = Getter[Thermostat, UUID](_.id)
 }
 
