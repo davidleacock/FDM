@@ -1,4 +1,4 @@
-package smarthome.imp
+package smarthome.impl
 
 import cats.Monad
 import cats.data.{EitherT, Kleisli}

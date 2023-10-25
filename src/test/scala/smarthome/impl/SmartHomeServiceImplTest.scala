@@ -1,4 +1,4 @@
-package smarthome.imp
+package smarthome.impl
 
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
