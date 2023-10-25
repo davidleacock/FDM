@@ -3,7 +3,7 @@ package smarthome
 import cats.data.Kleisli
 import monocle.macros.GenLens
 import monocle.{Getter, Lens}
-import smarthome.SmartHome.{ContactInfo, SmartHomeError}
+import smarthome.SmartHome.{ContactInfo, ContactInfoResult, SmartHomeResult}
 import smarthome.devices.Device
 import smarthome.devices.light.LightSwitch
 import smarthome.devices.motion.MotionDetector
@@ -19,20 +19,25 @@ case class SmartHome(
   thermostats: Seq[Thermostat] = Seq.empty)
 
 trait SmartHomeService[F[_]] {
-
-  def create(): Kleisli[F, SmartHome, Either[SmartHomeError, SmartHome]]
-  def addDevice(): Kleisli[F, (Device[_], SmartHome), Either[SmartHomeError, SmartHome]]
-  def updateDevice(): Kleisli[F, (Device[_], SmartHome), Either[SmartHomeError, SmartHome]]
-  def contactOwner():Kleisli[F, (SmartHome), Either[SmartHomeError, ContactInfo]]
+  // TODO: Maybe create should take the components of a SmartHome, generate ID itself
+  val createSmartHome: Kleisli[F, SmartHome, SmartHomeResult]
+  val addDeviceToSmartHome: Kleisli[F, (Device[_], SmartHome), SmartHomeResult]
+  val updateDeviceAtSmartHome: Kleisli[F, (Device[_], SmartHome), SmartHomeResult]
+  val getSmartHomeOwner:Kleisli[F, SmartHome, ContactInfoResult]
 }
 
 object SmartHome {
-  type ContactInfo = String
+  case class ContactInfo(name: String, email: String)
 
-  case class SmartHomeError(msg: String)
+  sealed trait SmartHomeError
+  object SmartHomeError {
+    case class GenericError(msg: String) extends SmartHomeError
+  }
+
+  type ContactInfoResult = Either[SmartHomeError, ContactInfo]
+  type SmartHomeResult = Either[SmartHomeError, SmartHome]
 
   val homeIdGetter: Getter[SmartHome, UUID] = Getter[SmartHome, UUID](_.homeId)
-
   val ownerLens: Lens[SmartHome, ContactInfo] = GenLens[SmartHome](_.homeOwnerInfo)
   val lightsLens: Lens[SmartHome, Seq[LightSwitch]] = GenLens[SmartHome](_.lights)
   val motionLens: Lens[SmartHome, Seq[MotionDetector]] = GenLens[SmartHome](_.motionDetectors)
