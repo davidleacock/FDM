@@ -27,6 +27,9 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
 
     val homeId = UUID.randomUUID()
 
+
+    // Add Device validation
+    // TODO - remove adding devices in SmartHome on create, this exists as a serpate method already
     val lights: Seq[LightSwitch] = devices.collect { case ls: LightSwitch => ls }
     val motionDetectors: Seq[MotionDetector] = devices.collect { case md: MotionDetector => md }
     val thermostats: Seq[Thermostat] = devices.collect { case t: Thermostat if validateThermostat(t).isValid => t }
@@ -49,6 +52,7 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
     }
   }
 
+  // Add Device Add Validation
   override def addDeviceToSmartHome(homeId: HomeId, device: Device[_]): F[SmartHomeResult] =
       device match {
         case light: LightSwitch =>
