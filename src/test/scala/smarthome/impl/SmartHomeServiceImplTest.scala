@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import smarthome.SmartHome
 import smarthome.SmartHome.{ContactInfo, SmartHomeResult}
-import smarthome.SmartHome.SmartHomeError.GenericError
+import smarthome.SmartHome.SmartHomeError.{GenericError, InvalidDeviceRequest}
 import smarthome.devices.light.{LightSwitch, Off => LightOff, On => LightOn}
 import smarthome.devices.motion.{MotionDetected, MotionDetector, MotionNotDetected, On => MotionOn}
 import smarthome.devices.thermo.{Celsius, Temperature, Thermostat}
@@ -16,6 +16,8 @@ import smarthome.repo.impl.MonadicSmartHomeInMemoryRepo
 import java.util.UUID
 
 class SmartHomeServiceImplTest extends AnyWordSpec with Matchers {
+
+  // TODO add data gens
 
   "SmartHomeServiceImpl" should {
 
@@ -214,7 +216,7 @@ class SmartHomeServiceImplTest extends AnyWordSpec with Matchers {
 
       result match {
         case Right(_) => fail(s"This should have returned an error")
-        case Left(error) => error shouldBe GenericError("ValidationError: Temperature must be between [0, 100]")
+        case Left(error) => error shouldBe InvalidDeviceRequest("Temperature must be between [0, 100]")
       }
     }
   }

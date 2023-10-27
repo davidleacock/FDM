@@ -31,7 +31,9 @@ object SmartHome {
   sealed trait SmartHomeError
   object SmartHomeError {
     case class GenericError(msg: String) extends SmartHomeError
-    // TODO more errors, Validation, Device etc
+    case class InvalidDeviceRequest(msg: String) extends SmartHomeError
+    case object HomeNotFound extends SmartHomeError
+    case object DeviceNotFound extends SmartHomeError
   }
 
   type ContactInfoResult = Either[SmartHomeError, ContactInfo]

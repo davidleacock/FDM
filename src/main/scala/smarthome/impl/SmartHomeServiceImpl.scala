@@ -1,7 +1,8 @@
 package smarthome.impl
 
 import cats.Monad
-import cats.data.{EitherT, Kleisli, Validated}
+import cats.data.{EitherT, Validated}
+import smarthome.SmartHome.SmartHomeError.{DeviceNotFound, HomeNotFound, InvalidDeviceRequest}
 import smarthome.SmartHome.{ContactInfo, HomeId}
 
 import java.util.UUID
@@ -44,7 +45,7 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
           case Right(home) => Right(home)
           case Left(repoError) => Left(GenericError(repoError.toString))
         }
-      case Validated.Invalid(errors) => Monad[F].pure(Left(GenericError("ValidationError: " + errors.toList.mkString(","))))
+      case Validated.Invalid(errors) => Monad[F].pure(Left(InvalidDeviceRequest(errors.toList.mkString(","))))
     }
   }
 
@@ -60,7 +61,7 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
             }
           }
 
@@ -73,7 +74,7 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
             }
           }
 
@@ -86,11 +87,11 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
             }
           }
 
-        case _ => Monad[F].pure(Left(GenericError(s"Unknown device id: ${device.id}")))
+        case _ => Monad[F].pure(Left(DeviceNotFound))
       }
 
 
@@ -111,7 +112,7 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
             }
           }
 
@@ -131,35 +132,34 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
             }
           }
 
-        // TODO use lenses and some helper methods to clean this up, way too wide.
         case thermostat: Thermostat =>
           val result = for {
             validatedThermostat <- EitherT[F, SmartHomeError, Thermostat] (
               validateThermostat(thermostat).toEither match {
                 case Right(valid) => Monad[F].pure(Right(valid))
                 case Left(errors) =>
-                  Monad[F].pure(Left(GenericError("ValidationError: " + errors.toList.mkString(","))))
+                  Monad[F].pure(Left(InvalidDeviceRequest(errors.toList.mkString(","))))
               }
             )
-            fetchedHome <- EitherT[F, SmartHomeError, SmartHome](repo.retrieve(homeId).map(_.leftMap(e => GenericError("RepoError: " + e))))
+            fetchedHome <- EitherT[F, SmartHomeError, SmartHome](repo.retrieve(homeId).map(_.leftMap(_ => HomeNotFound)))
             updatedHome <- EitherT[F, SmartHomeError, SmartHome] {
               val updatedThermo = fetchedHome.thermostats.collect {
                 case d if d.id == validatedThermostat.id => d.update(validatedThermostat)
                 case other => other
               }
 
-              repo.update(fetchedHome.copy(thermostats = updatedThermo)).map(_.leftMap(e => GenericError("RepoError: " + e)))
+              repo.update(fetchedHome.copy(thermostats = updatedThermo)).map(_.leftMap(_ => HomeNotFound))
             }
           } yield updatedHome
 
           result.value
 
 
-        case _ => Monad[F].pure(Left(GenericError(s"Unknown device id: ${device.id}")))
+        case _ => Monad[F].pure(Left(DeviceNotFound))
       }
 
 
