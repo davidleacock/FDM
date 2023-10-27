@@ -1,7 +1,10 @@
 package smarthome.impl
 
 import cats.Monad
-import cats.data.{EitherT, Kleisli}
+import cats.data.{EitherT, Kleisli, Validated}
+import smarthome.SmartHome.{ContactInfo, HomeId}
+
+import java.util.UUID
 // TODO Why did this import break everything?
 //import cats.syntax.functor._
 import cats.implicits._
@@ -19,89 +22,116 @@ import smarthome.{SmartHome, SmartHomeService}
 class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
     extends SmartHomeService[F] {
 
-  // TODO: Create should take the composites of the ContactInfo and Device and then Validate. Pass in Validator
-  override val createSmartHome: Kleisli[F, SmartHome, SmartHomeResult] =
-    Kleisli {
-      newHome: SmartHome =>
-        repo.create(newHome).map {
+  override def createSmartHome(contactInfo: ContactInfo, devices: Seq[Device[_]]): F[SmartHomeResult] = {
+
+    val homeId = UUID.randomUUID()
+
+    val lights: Seq[LightSwitch] = devices.collect { case ls: LightSwitch => ls }
+    val motionDetectors: Seq[MotionDetector] = devices.collect { case md: MotionDetector => md }
+    val thermostats: Seq[Thermostat] = devices.collect { case t: Thermostat if validateThermostat(t).isValid => t }
+
+    validateContactInfo(contactInfo) match {
+      case Validated.Valid(validContactInfo) =>
+
+        val smartHome = SmartHome(
+          homeId,
+          validContactInfo,
+          lights = lights,
+          motionDetectors = motionDetectors,
+          thermostats = thermostats
+        )
+        repo.create(smartHome).map {
           case Right(home) => Right(home)
           case Left(repoError) => Left(GenericError(repoError.toString))
         }
+      case Validated.Invalid(errors) => Monad[F].pure(Left(GenericError("ValidationError: " + errors.toList.mkString(","))))
     }
+  }
 
   // Difference between add and update? Their validation?
-  override val addDeviceToSmartHome: Kleisli[F, (Device[_], SmartHome), SmartHomeResult] =
-    Kleisli { case (device, home) =>
+  override def addDeviceToSmartHome(homeId: HomeId, device: Device[_]): F[SmartHomeResult] =
       device match {
         case light: LightSwitch =>
           val result = for {
-            fetchedHome <- EitherT(repo.retrieve(home.homeId))
+            fetchedHome <- EitherT(repo.retrieve(homeId))
             updatedHome <- EitherT(repo.update(fetchedHome.copy(lights = fetchedHome.lights :+ light)))
           } yield updatedHome
 
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${home.homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
             }
           }
 
         case motionDetector: MotionDetector =>
           val result = for {
-            fetchedHome <- EitherT(repo.retrieve(home.homeId))
+            fetchedHome <- EitherT(repo.retrieve(homeId))
             updatedHome <- EitherT(repo.update(fetchedHome.copy(motionDetectors = fetchedHome.motionDetectors :+ motionDetector)))
           } yield updatedHome
 
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${home.homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
             }
           }
 
         case thermostat: Thermostat =>
           val result = for {
-            fetchedHome <- EitherT(repo.retrieve(home.homeId))
+            fetchedHome <- EitherT(repo.retrieve(homeId))
             updatedHome <- EitherT(repo.update(fetchedHome.copy(thermostats = fetchedHome.thermostats :+ thermostat)))
           } yield updatedHome
 
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${home.homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
             }
           }
 
         case _ => Monad[F].pure(Left(GenericError(s"Unknown device id: ${device.id}")))
       }
-    }
 
-  override val updateDeviceAtSmartHome: Kleisli[F, (Device[_], SmartHome), SmartHomeResult] =
-    Kleisli { case (device, home) =>
+
+  override def updateDeviceAtSmartHome(homeId: HomeId, device: Device[_]): F[SmartHomeResult] =
       device match {
         case light: LightSwitch =>
           val result = for {
-            fetchedHome <- EitherT(repo.retrieve(home.homeId))
-            updatedHome <- EitherT(repo.update(fetchedHome.copy(lights = fetchedHome.lights :+ light)))
+            fetchedHome <- EitherT(repo.retrieve(homeId))
+            updatedHome <- {
+              val updatedLights = fetchedHome.lights.collect {
+                case l if l.id == light.id => l.update(light)
+                case other => other
+              }
+              EitherT(repo.update(fetchedHome.copy(lights = updatedLights)))
+            }
           } yield updatedHome
 
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${home.homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
             }
           }
 
         case motionDetector: MotionDetector =>
           val result = for {
-            fetchedHome <- EitherT(repo.retrieve(home.homeId))
-            updatedHome <- EitherT(repo.update(fetchedHome.copy(motionDetectors = fetchedHome.motionDetectors :+ motionDetector)))
+            fetchedHome <- EitherT(repo.retrieve(homeId))
+            updatedHome <- {
+              val updatedMotion = fetchedHome.motionDetectors.collect {
+                case d if d.id == motionDetector.id => d.update(motionDetector)
+                case other => other
+              }
+
+              EitherT(repo.update(fetchedHome.copy(motionDetectors = updatedMotion)))
+            }
           } yield updatedHome
 
           result.value.map {
             case Right(updatedHome) => Right(updatedHome)
             case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${home.homeId}"))
+              case RepositoryError.SmartHomeNotFound => Left(GenericError(s"SmartHome wasn't found for ${homeId}"))
             }
           }
 
@@ -115,8 +145,15 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
                   Monad[F].pure(Left(GenericError("ValidationError: " + errors.toList.mkString(","))))
               }
             )
-            fetchedHome <- EitherT[F, SmartHomeError, SmartHome](repo.retrieve(home.homeId).map(_.leftMap(e => GenericError("RepoError: " + e))))
-            updatedHome <- EitherT[F, SmartHomeError, SmartHome](repo.update(fetchedHome.copy(thermostats = fetchedHome.thermostats :+ validatedThermostat)).map(_.leftMap(e => GenericError("RepoError: " + e))))
+            fetchedHome <- EitherT[F, SmartHomeError, SmartHome](repo.retrieve(homeId).map(_.leftMap(e => GenericError("RepoError: " + e))))
+            updatedHome <- EitherT[F, SmartHomeError, SmartHome] {
+              val updatedThermo = fetchedHome.thermostats.collect {
+                case d if d.id == validatedThermostat.id => d.update(validatedThermostat)
+                case other => other
+              }
+
+              repo.update(fetchedHome.copy(thermostats = updatedThermo)).map(_.leftMap(e => GenericError("RepoError: " + e)))
+            }
           } yield updatedHome
 
           result.value
@@ -124,16 +161,14 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
 
         case _ => Monad[F].pure(Left(GenericError(s"Unknown device id: ${device.id}")))
       }
-    }
 
-  override val getSmartHomeOwner: Kleisli[F, SmartHome, ContactInfoResult] =
-    Kleisli {
-      home: SmartHome =>
-        repo.retrieve(home.homeId).map {
-          case Right(home) => Right(home.homeOwnerInfo)
-          case Left(error) => Left(GenericError(error.toString))
-        }
+
+  override def getSmartHomeOwner(homeId: HomeId): F[ContactInfoResult] = {
+    repo.retrieve(homeId).map {
+      case Right(home) => Right(home.homeOwnerInfo)
+      case Left(error) => Left(GenericError(error.toString))
     }
+  }
 
   private def validateThermostat(thermostat: Thermostat): ValidatedNec[String, Thermostat] =
     if (thermostat.temp.value >= 0 && thermostat.temp.value <= 100) {
@@ -141,5 +176,13 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
     } else {
       "Temperature must be between [0, 100]".invalidNec
     }
+
+  private def validateContactInfo(contactInfo: ContactInfo): ValidatedNec[String, ContactInfo] =
+    if (contactInfo.name.isBlank) {
+      "Contact name is missing.".invalidNec
+    } else if (contactInfo.email.isBlank) {
+      "Email address is missing.".invalidNec
+    } else contactInfo.validNec
+
 
 }
