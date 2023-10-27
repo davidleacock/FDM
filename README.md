@@ -112,7 +112,9 @@ case class LightSwitch(...) extends Device[LightSwitch]
 
 ***
 ### Kleisli Arrows
-<b>TODO!🧠 </b> The SmartHome algebra makes use of these as the return type,  will add notes on why this is shortly...
+<b>TODO!🧠 </b> For awhile the SmartHome service API had everything wrapped inside a Kleisli but I never ended up using
+it for dependecy injection like I thought I would. It also made the return type very complex to look at. Will keep it in mind though
+for later. Seems like a need type class to use.  For example if there was a dependency variation by call, that would be a good use for it.
 ***
 ### Validator
 <b>TODO!🧠 </b> Added Validator for the SmartHomeServiceImpl. Will explain this type and how it will be used shortly...
