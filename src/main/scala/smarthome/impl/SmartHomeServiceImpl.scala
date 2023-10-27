@@ -49,47 +49,16 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
     }
   }
 
-  // Difference between add and update? Their validation?
   override def addDeviceToSmartHome(homeId: HomeId, device: Device[_]): F[SmartHomeResult] =
       device match {
         case light: LightSwitch =>
-          val result = for {
-            fetchedHome <- EitherT(repo.retrieve(homeId))
-            updatedHome <- EitherT(repo.update(fetchedHome.copy(lights = fetchedHome.lights :+ light)))
-          } yield updatedHome
-
-          result.value.map {
-            case Right(updatedHome) => Right(updatedHome)
-            case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
-            }
-          }
+          fetchAndUpdateHome(homeId, home => home.copy(lights = home.lights :+ light))
 
         case motionDetector: MotionDetector =>
-          val result = for {
-            fetchedHome <- EitherT(repo.retrieve(homeId))
-            updatedHome <- EitherT(repo.update(fetchedHome.copy(motionDetectors = fetchedHome.motionDetectors :+ motionDetector)))
-          } yield updatedHome
-
-          result.value.map {
-            case Right(updatedHome) => Right(updatedHome)
-            case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
-            }
-          }
+          fetchAndUpdateHome(homeId, home => home.copy(motionDetectors = home.motionDetectors :+ motionDetector))
 
         case thermostat: Thermostat =>
-          val result = for {
-            fetchedHome <- EitherT(repo.retrieve(homeId))
-            updatedHome <- EitherT(repo.update(fetchedHome.copy(thermostats = fetchedHome.thermostats :+ thermostat)))
-          } yield updatedHome
-
-          result.value.map {
-            case Right(updatedHome) => Right(updatedHome)
-            case Left(error) => error match {
-              case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
-            }
-          }
+          fetchAndUpdateHome(homeId, home => home.copy(thermostats = home.thermostats :+ thermostat))
 
         case _ => Monad[F].pure(Left(DeviceNotFound))
       }
@@ -184,5 +153,20 @@ class SmartHomeServiceImpl[F[_]: Monad](repo: SmartHomeRepository[F])
       "Email address is missing.".invalidNec
     } else contactInfo.validNec
 
+
+  private def fetchAndUpdateHome(
+                              homeId: HomeId,
+                              updateFn: SmartHome => SmartHome
+                     ): F [Either[SmartHomeError, SmartHome]] = {
+    (for {
+      fetchedHome <- EitherT(repo.retrieve(homeId))
+      updatedHome <- EitherT(repo.update(updateFn(fetchedHome)))
+    } yield updatedHome).value.map {
+      case Right(updatedHome) => Right(updatedHome)
+      case Left(error) => error match {
+        case RepositoryError.SmartHomeNotFound => Left(HomeNotFound)
+      }
+    }
+  }
 
 }
